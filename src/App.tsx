@@ -8,6 +8,7 @@ import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { Financas } from "./pages/Financas";
 import { Vendas } from "./pages/Vendas";
+import { Clientes } from "./pages/Clientes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,11 @@ const AppRoutes = () => (
       <Route path="/vendas" element={
         <PrivateRoute>
           <Vendas />
+        </PrivateRoute>
+      } />
+      <Route path="/clientes" element={
+        <PrivateRoute>
+          <Clientes />
         </PrivateRoute>
       } />
       <Route path="*" element={<NotFound />} />

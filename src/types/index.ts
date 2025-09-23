@@ -5,7 +5,32 @@ export interface PersonalTransaction {
   description: string;
   value: number;
   category: string;
-  transaction_date: string; // Formato ISO: '2025-09-22T10:00:00Z'
+  transaction_date: string;
+  payment_method?: 'dinheiro' | 'debito' | 'credito' | 'pix' | 'transferencia';
+  credit_card?: string;
+  bank?: string;
+  due_date?: string;
+  installments?: number;
+  current_installment?: number;
+}
+
+// Interface para clientes
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  created_date: string;
+}
+
+// Interface para pagamentos de vendas
+export interface SalePayment {
+  id: string;
+  sale_id: string;
+  amount: number;
+  payment_date: string;
+  payment_method: 'dinheiro' | 'debito' | 'credito' | 'pix' | 'transferencia';
 }
 
 // Interface para as vendas de produtos
@@ -15,8 +40,14 @@ export interface Sale {
   brand: 'Avon' | 'O Boticário' | 'Natura' | 'Eudora' | 'Outra';
   cost_price: number;
   sale_price: number;
-  profit: number; // Deve ser calculado (sale_price - cost_price) no momento da criação
-  sale_date: string; // Formato ISO
+  profit: number;
+  sale_date: string;
+  customer_id: string;
+  payment_type: 'vista' | 'parcelado';
+  installments: number;
+  installment_value: number;
+  payments: SalePayment[];
+  status: 'pendente' | 'parcial' | 'quitado';
 }
 
 // Interface para as anotações do usuário
@@ -25,15 +56,31 @@ export interface Note {
   updated_at: string;
 }
 
+// Interface para filtros de período
+export interface PeriodFilter {
+  type: 'diario' | 'semanal' | 'mensal';
+  startDate: string;
+  endDate: string;
+}
+
 // Interface para o contexto da aplicação
 export interface AppContextType {
   isAuthenticated: boolean;
   personalTransactions: PersonalTransaction[];
   sales: Sale[];
+  customers: Customer[];
   notes: Note;
+  periodFilter: PeriodFilter;
   login: () => void;
   logout: () => void;
   addTransaction: (transaction: Omit<PersonalTransaction, 'id'>) => void;
-  addSale: (sale: Omit<Sale, 'id' | 'profit'>) => void;
+  deleteTransaction: (id: string) => void;
+  addSale: (sale: Omit<Sale, 'id' | 'profit' | 'payments' | 'status'>) => void;
+  deleteSale: (id: string) => void;
+  addCustomer: (customer: Omit<Customer, 'id' | 'created_date'>) => void;
+  deleteCustomer: (id: string) => void;
+  addSalePayment: (saleId: string, payment: Omit<SalePayment, 'id' | 'sale_id'>) => void;
   updateNotes: (content: string) => void;
+  setPeriodFilter: (filter: PeriodFilter) => void;
+  clearAllData: () => void;
 }

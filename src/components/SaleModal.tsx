@@ -10,7 +10,7 @@ import { Sale } from '@/types';
 interface SaleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (sale: Omit<Sale, 'id' | 'profit'>) => void;
+  onSave: (sale: Omit<Sale, 'id' | 'profit' | 'payments' | 'status'>) => void;
 }
 
 const brands: Sale['brand'][] = ['Avon', 'O Boticário', 'Natura', 'Eudora', 'Outra'];
@@ -48,12 +48,17 @@ export const SaleModal = ({ isOpen, onClose, onSave }: SaleModalProps) => {
       return;
     }
 
-    const sale: Omit<Sale, 'id' | 'profit'> = {
+    // Valores temporários para campos obrigatórios
+    const sale: Omit<Sale, 'id' | 'profit' | 'payments' | 'status'> = {
       product_description: formData.product_description,
       brand: formData.brand,
       cost_price: costPrice,
       sale_price: salePrice,
       sale_date: new Date().toISOString(),
+      customer_id: 'temp-customer', // Temporário até implementar sistema completo
+      payment_type: 'vista',
+      installments: 1,
+      installment_value: salePrice,
     };
 
     onSave(sale);

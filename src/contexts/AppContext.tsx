@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AppContextType, PersonalTransaction, Sale, Note } from '@/types';
-import { mockPersonalTransactions, mockSales, mockNote } from '@/data/mocks';
+import { AppContextType, PersonalTransaction, Sale, Customer, Note, PeriodFilter, SalePayment } from '@/types';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -16,18 +15,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [personalTransactions, setPersonalTransactions] = useState<PersonalTransaction[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
-  const [notes, setNotes] = useState<Note>(mockNote);
-
-  useEffect(() => {
-    // Simular carregamento de dados mockados quando usuário faz login
-    if (isAuthenticated) {
-      setPersonalTransactions(mockPersonalTransactions);
-      setSales(mockSales);
-    } else {
-      setPersonalTransactions([]);
-      setSales([]);
-    }
-  }, [isAuthenticated]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [notes, setNotes] = useState<Note>({ content: '', updated_at: new Date().toISOString() });
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>({
+    type: 'mensal',
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+    endDate: new Date().toISOString()
+  });
 
   const login = () => {
     setIsAuthenticated(true);
@@ -45,13 +39,67 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPersonalTransactions(prev => [newTransaction, ...prev]);
   };
 
-  const addSale = (sale: Omit<Sale, 'id' | 'profit'>) => {
+  const deleteTransaction = (id: string) => {
+    setPersonalTransactions(prev => prev.filter(t => t.id !== id));
+  };
+
+  const addSale = (sale: Omit<Sale, 'id' | 'profit' | 'payments' | 'status'>) => {
     const newSale: Sale = {
       ...sale,
       id: Date.now().toString(),
       profit: sale.sale_price - sale.cost_price,
+      payments: [],
+      status: 'pendente'
     };
     setSales(prev => [newSale, ...prev]);
+  };
+
+  const deleteSale = (id: string) => {
+    setSales(prev => prev.filter(s => s.id !== id));
+  };
+
+  const addCustomer = (customer: Omit<Customer, 'id' | 'created_date'>) => {
+    const newCustomer: Customer = {
+      ...customer,
+      id: Date.now().toString(),
+      created_date: new Date().toISOString(),
+    };
+    setCustomers(prev => [newCustomer, ...prev]);
+  };
+
+  const deleteCustomer = (id: string) => {
+    setCustomers(prev => prev.filter(c => c.id !== id));
+    // Remove vendas associadas ao cliente
+    setSales(prev => prev.filter(s => s.customer_id !== id));
+  };
+
+  const addSalePayment = (saleId: string, payment: Omit<SalePayment, 'id' | 'sale_id'>) => {
+    const newPayment: SalePayment = {
+      ...payment,
+      id: Date.now().toString(),
+      sale_id: saleId,
+    };
+
+    setSales(prev => prev.map(sale => {
+      if (sale.id === saleId) {
+        const updatedPayments = [...sale.payments, newPayment];
+        const totalPaid = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+        
+        let status: 'pendente' | 'parcial' | 'quitado' = 'pendente';
+        if (totalPaid >= sale.sale_price) {
+          status = 'quitado';
+        } else if (totalPaid > 0) {
+          status = 'parcial';
+        }
+
+        return {
+          ...sale,
+          payments: updatedPayments,
+          status
+        };
+      }
+      return sale;
+    }));
   };
 
   const updateNotes = (content: string) => {
@@ -61,16 +109,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const clearAllData = () => {
+    setPersonalTransactions([]);
+    setSales([]);
+    setCustomers([]);
+    setNotes({ content: '', updated_at: new Date().toISOString() });
+  };
+
   const value: AppContextType = {
     isAuthenticated,
     personalTransactions,
     sales,
+    customers,
     notes,
+    periodFilter,
     login,
     logout,
     addTransaction,
+    deleteTransaction,
     addSale,
+    deleteSale,
+    addCustomer,
+    deleteCustomer,
+    addSalePayment,
     updateNotes,
+    setPeriodFilter,
+    clearAllData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

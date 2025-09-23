@@ -14,15 +14,11 @@ interface TransactionModalProps {
 }
 
 const categories = [
-  'Salário',
-  'Renda Extra',
-  'Alimentação',
-  'Casa',
-  'Transporte',
-  'Saúde',
-  'Educação',
-  'Lazer',
-  'Outros'
+  'Salário', 'Renda Extra', 'Alimentação', 'Casa', 'Transporte', 'Saúde',
+  'Educação', 'Lazer', 'Vestuário', 'Tecnologia', 'Investimentos', 'Seguros',
+  'Impostos', 'Telefone/Internet', 'Streaming/Assinaturas', 'Pets',
+  'Beleza/Cuidados Pessoais', 'Presentes/Doações', 'Farmácia/Medicamentos',
+  'Combustível', 'Manutenção/Reparos', 'Outros'
 ];
 
 export const TransactionModal = ({ isOpen, onClose, onSave }: TransactionModalProps) => {
@@ -31,6 +27,9 @@ export const TransactionModal = ({ isOpen, onClose, onSave }: TransactionModalPr
     description: '',
     value: '',
     category: '',
+    payment_method: '' as 'dinheiro' | 'debito' | 'credito' | 'pix' | 'transferencia' | '',
+    credit_card: '',
+    bank: '',
   });
   const { toast } = useToast();
 
@@ -40,7 +39,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave }: TransactionModalPr
     if (!formData.type || !formData.description || !formData.value || !formData.category) {
       toast({
         title: 'Erro',
-        description: 'Todos os campos são obrigatórios.',
+        description: 'Campos obrigatórios devem ser preenchidos.',
         variant: 'destructive',
       });
       return;
@@ -52,108 +51,66 @@ export const TransactionModal = ({ isOpen, onClose, onSave }: TransactionModalPr
       value: parseFloat(formData.value),
       category: formData.category,
       transaction_date: new Date().toISOString(),
+      payment_method: formData.payment_method || undefined,
+      credit_card: formData.credit_card || undefined,
+      bank: formData.bank || undefined,
     };
 
     onSave(transaction);
-    
-    // Reset form
-    setFormData({
-      type: '',
-      description: '',
-      value: '',
-      category: '',
-    });
-    
-    toast({
-      title: 'Sucesso',
-      description: 'Transação adicionada com sucesso!',
-    });
-    
-    onClose();
-  };
-
-  const handleClose = () => {
-    setFormData({
-      type: '',
-      description: '',
-      value: '',
-      category: '',
-    });
+    setFormData({ type: '', description: '', value: '', category: '', payment_method: '', credit_card: '', bank: '' });
+    toast({ title: 'Sucesso', description: 'Transação adicionada!' });
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Lançamento</DialogTitle>
-          <DialogDescription>
-            Adicione uma nova receita ou despesa ao seu controle financeiro.
-          </DialogDescription>
+          <DialogTitle>Nova Transação</DialogTitle>
+          <DialogDescription>Adicione receita ou despesa</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="type">Tipo</Label>
-            <Select value={formData.type} onValueChange={(value: 'receita' | 'despesa') => 
-              setFormData({ ...formData, type: value })
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="receita">Receita</SelectItem>
-                <SelectItem value="despesa">Despesa</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Tipo *</Label>
+              <Select value={formData.type} onValueChange={(value: 'receita' | 'despesa') => 
+                setFormData({ ...formData, type: value })
+              }>
+                <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="receita">Receita</SelectItem>
+                  <SelectItem value="despesa">Despesa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Valor *</Label>
+              <Input type="number" step="0.01" value={formData.value} 
+                onChange={(e) => setFormData({ ...formData, value: e.target.value })} />
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Input
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Ex: Supermercado, Salário..."
-            />
+          
+          <div>
+            <Label>Descrição *</Label>
+            <Input value={formData.description} 
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="value">Valor</Label>
-            <Input
-              id="value"
-              type="number"
-              step="0.01"
-              value={formData.value}
-              onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-              placeholder="0,00"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category">Categoria</Label>
+          
+          <div>
+            <Label>Categoria *</Label>
             <Select value={formData.category} onValueChange={(value) => 
               setFormData({ ...formData, category: value })
             }>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a categoria" />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
+                {categories.map((cat) => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" className="bg-gradient-primary">
-              Salvar
-            </Button>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+            <Button type="submit">Salvar</Button>
           </div>
         </form>
       </DialogContent>

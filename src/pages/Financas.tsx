@@ -6,11 +6,14 @@ import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { TransactionModal } from '@/components/TransactionModal';
 import { useAppContext } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export const Financas = () => {
-  const { personalTransactions, logout, addTransaction } = useAppContext();
+  const { personalTransactions, logout, addTransaction, deleteTransaction, clearAllData } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const chartData = useMemo(() => {
     const categoryTotals = personalTransactions
@@ -104,6 +107,20 @@ export const Financas = () => {
           </Card>
         </div>
 
+        {/* Actions */}
+        <div className="mb-6">
+          <Button 
+            variant="destructive" 
+            onClick={() => {
+              clearAllData();
+              toast({ title: 'Dados limpos', description: 'Todos os dados foram removidos.' });
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Limpar Todos os Dados
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Chart Section */}
           <Card className="shadow-card bg-gradient-card">
@@ -136,6 +153,7 @@ export const Financas = () => {
               {personalTransactions.length > 0 ? (
                 <RecentTransactionsTable 
                   transactions={personalTransactions.slice(0, 8)} 
+                  onDelete={deleteTransaction}
                 />
               ) : (
                 <div className="flex items-center justify-center h-64 text-muted-foreground">
