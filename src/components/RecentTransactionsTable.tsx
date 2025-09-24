@@ -1,14 +1,17 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { PersonalTransaction } from '@/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Trash2 } from 'lucide-react';
 
 interface RecentTransactionsTableProps {
   transactions: PersonalTransaction[];
+  onDelete: (id: string) => void;
 }
 
-export const RecentTransactionsTable = ({ transactions }: RecentTransactionsTableProps) => {
+export const RecentTransactionsTable = ({ transactions, onDelete }: RecentTransactionsTableProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -30,6 +33,7 @@ export const RecentTransactionsTable = ({ transactions }: RecentTransactionsTabl
             <TableHead>Tipo</TableHead>
             <TableHead>Valor</TableHead>
             <TableHead>Data</TableHead>
+            <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -54,6 +58,16 @@ export const RecentTransactionsTable = ({ transactions }: RecentTransactionsTabl
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {formatDate(transaction.transaction_date)}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(transaction.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}
