@@ -3,38 +3,40 @@ import { Navbar } from '@/components/Navbar';
 import { BarChart } from '@/components/BarChart';
 import { SalesTable } from '@/components/SalesTable';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
-import { SaleModal } from '@/components/SaleModal';
+import { NewSaleModal } from '@/components/NewSaleModal';
 import { useAppContext } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart, TrendingUp, Package, DollarSign } from 'lucide-react';
 
 export const Vendas = () => {
-  const { sales, logout, addSale } = useAppContext();
+  const { sales, customers, logout, deleteSale } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const chartData = useMemo(() => {
-    const brandTotals = sales.reduce((acc, sale) => {
-      acc[sale.brand] = (acc[sale.brand] || 0) + sale.profit;
+    const customerTotals = sales.reduce((acc, sale) => {
+      const customer = customers.find(c => c.id === sale.customer_id);
+      const customerName = customer?.name || 'Cliente não encontrado';
+      acc[customerName] = (acc[customerName] || 0) + sale.profit;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(brandTotals).map(([name, value]) => ({
+    return Object.entries(customerTotals).map(([name, value]) => ({
       name,
       value,
     }));
-  }, [sales]);
+  }, [sales, customers]);
 
   const summary = useMemo(() => {
-    const totalVendas = sales.reduce((sum, s) => sum + s.sale_price, 0);
-    const totalCusto = sales.reduce((sum, s) => sum + s.cost_price, 0);
+    const totalVendas = sales.reduce((sum, s) => sum + s.total_value, 0);
     const totalLucro = sales.reduce((sum, s) => sum + s.profit, 0);
-    const totalProdutos = sales.length;
+    const totalItens = sales.reduce((sum, s) => sum + s.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+    const totalTransacoes = sales.length;
 
     return {
       vendas: totalVendas,
-      custo: totalCusto,
       lucro: totalLucro,
-      produtos: totalProdutos,
+      itens: totalItens,
+      transacoes: totalTransacoes,
     };
   }, [sales]);
 
@@ -75,12 +77,12 @@ export const Vendas = () => {
 
           <Card className="shadow-card bg-gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Custo</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Itens Vendidos</CardTitle>
+              <Package className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-muted-foreground">
-                {formatCurrency(summary.custo)}
+              <div className="text-2xl font-bold text-accent">
+                {summary.itens}
               </div>
             </CardContent>
           </Card>
@@ -99,12 +101,12 @@ export const Vendas = () => {
 
           <Card className="shadow-card bg-gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Produtos Vendidos</CardTitle>
-              <Package className="h-4 w-4 text-accent" />
+              <CardTitle className="text-sm font-medium">Transações</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-accent">
-                {summary.produtos}
+              <div className="text-2xl font-bold text-muted-foreground">
+                {summary.transacoes}
               </div>
             </CardContent>
           </Card>
@@ -114,9 +116,9 @@ export const Vendas = () => {
           {/* Chart Section */}
           <Card className="shadow-card bg-gradient-card">
             <CardHeader>
-              <CardTitle>Lucro por Marca</CardTitle>
+              <CardTitle>Lucro por Cliente</CardTitle>
               <CardDescription>
-                Desempenho de lucro por marca de produtos
+                Desempenho de lucro por cliente
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -140,7 +142,7 @@ export const Vendas = () => {
             </CardHeader>
             <CardContent>
               {sales.length > 0 ? (
-                <SalesTable sales={sales.slice(0, 8)} />
+                <SalesTable sales={sales.slice(0, 8)} onDelete={deleteSale} />
               ) : (
                 <div className="flex items-center justify-center h-64 text-muted-foreground">
                   Nenhuma venda registrada ainda
@@ -152,10 +154,9 @@ export const Vendas = () => {
 
         <FloatingActionButton onClick={() => setIsModalOpen(true)} />
         
-        <SaleModal
+        <NewSaleModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSave={addSale}
         />
       </main>
     </div>

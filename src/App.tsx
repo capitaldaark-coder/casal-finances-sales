@@ -9,6 +9,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Financas } from "./pages/Financas";
 import { Vendas } from "./pages/Vendas";
 import { Clientes } from "./pages/Clientes";
+import { Produtos } from "./pages/Produtos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,11 @@ const AppRoutes = () => (
       <Route path="/clientes" element={
         <PrivateRoute>
           <Clientes />
+        </PrivateRoute>
+      } />
+      <Route path="/produtos" element={
+        <PrivateRoute>
+          <Produtos />
         </PrivateRoute>
       } />
       <Route path="*" element={<NotFound />} />

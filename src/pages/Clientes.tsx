@@ -18,7 +18,7 @@ export const Clientes = () => {
   const getCustomerStats = (customerId: string) => {
     const customerSales = sales.filter(sale => sale.customer_id === customerId);
     const totalSales = customerSales.length;
-    const totalValue = customerSales.reduce((sum, sale) => sum + sale.sale_price, 0);
+    const totalValue = customerSales.reduce((sum, sale) => sum + sale.total_value, 0);
     const totalPaid = customerSales.reduce((sum, sale) => 
       sum + sale.payments.reduce((pSum, payment) => pSum + payment.amount, 0), 0
     );

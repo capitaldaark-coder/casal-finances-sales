@@ -7,7 +7,7 @@ import { useAppContext } from '@/contexts/AppContext';
 import { DollarSign, ShoppingCart, TrendingUp, Wallet } from 'lucide-react';
 
 export const Dashboard = () => {
-  const { personalTransactions, sales, logout } = useAppContext();
+  const { personalTransactions, sales, products, logout, clearAllData } = useAppContext();
   const navigate = useNavigate();
 
   const financialSummary = useMemo(() => {
@@ -48,9 +48,14 @@ export const Dashboard = () => {
              saleDate.getFullYear() === currentYear;
     });
 
-    const totalVendas = monthlySales.reduce((sum, s) => sum + s.sale_price, 0);
-    const totalLucro = monthlySales.reduce((sum, s) => sum + s.profit, 0);
-    const totalCusto = monthlySales.reduce((sum, s) => sum + s.cost_price, 0);
+    const totalVendas = monthlySales.reduce((sum, sale) => sum + sale.total_value, 0);
+    const totalLucro = monthlySales.reduce((sum, sale) => sum + sale.profit, 0);
+    const totalCusto = monthlySales.reduce((sum, sale) => {
+      return sum + sale.items.reduce((itemSum, item) => {
+        const product = products.find(p => p.id === item.product_id);
+        return itemSum + ((product?.cost_price || 0) * item.quantity);
+      }, 0);
+    }, 0);
 
     return [
       { label: 'Vendas', value: totalVendas },
@@ -58,7 +63,7 @@ export const Dashboard = () => {
       { label: 'Custo', value: totalCusto },
       { label: 'Produtos', value: monthlySales.length, format: 'number' as const }
     ];
-  }, [sales]);
+  }, [sales, products]);
 
   return (
     <div className="min-h-screen bg-background">

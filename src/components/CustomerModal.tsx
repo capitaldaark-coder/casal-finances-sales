@@ -10,7 +10,7 @@ import { Customer } from '@/types';
 interface CustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (customer: Omit<Customer, 'id' | 'created_date'>) => void;
+  onSave: (customer: Omit<Customer, 'id' | 'created_date' | 'current_debt'>) => void;
 }
 
 export const CustomerModal = ({ isOpen, onClose, onSave }: CustomerModalProps) => {
@@ -34,7 +34,7 @@ export const CustomerModal = ({ isOpen, onClose, onSave }: CustomerModalProps) =
       return;
     }
 
-    const customer: Omit<Customer, 'id' | 'created_date'> = {
+    const customer: Omit<Customer, 'id' | 'created_date' | 'current_debt'> = {
       name: formData.name,
       phone: formData.phone,
       email: formData.email || undefined,
