@@ -10,6 +10,7 @@ import { Financas } from "./pages/Financas";
 import { Vendas } from "./pages/Vendas";
 import { Clientes } from "./pages/Clientes";
 import { Produtos } from "./pages/Produtos";
+import ContasPagar from "./pages/ContasPagar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,11 @@ const AppRoutes = () => (
       <Route path="/produtos" element={
         <PrivateRoute>
           <Produtos />
+        </PrivateRoute>
+      } />
+      <Route path="/contas-pagar" element={
+        <PrivateRoute>
+          <ContasPagar />
         </PrivateRoute>
       } />
       <Route path="*" element={<NotFound />} />

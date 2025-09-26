@@ -97,6 +97,46 @@ export interface CustomerPayment {
   description?: string;
 }
 
+// Interface para fornecedores
+export interface Supplier {
+  id: string;
+  name: string;
+  cnpj?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  created_date: string;
+}
+
+// Interface para contas/boletos
+export interface Bill {
+  id: string;
+  supplier_id: string;
+  supplier_name: string;
+  description: string;
+  total_value: number;
+  issue_date: string;
+  first_due_date: string;
+  installments_count: number;
+  attachment?: string;
+  created_date: string;
+}
+
+// Interface para parcelas das contas
+export interface BillInstallment {
+  id: string;
+  bill_id: string;
+  supplier_name: string;
+  description: string;
+  installment_number: number;
+  total_installments: number;
+  value: number;
+  due_date: string;
+  status: 'a_pagar' | 'paga' | 'vencida';
+  payment_date?: string;
+  created_date: string;
+}
+
 // Interface para o contexto da aplicação
 export interface AppContextType {
   isAuthenticated: boolean;
@@ -105,6 +145,9 @@ export interface AppContextType {
   customers: Customer[];
   products: Product[];
   customerPayments: CustomerPayment[];
+  suppliers: Supplier[];
+  bills: Bill[];
+  billInstallments: BillInstallment[];
   notes: Note;
   periodFilter: PeriodFilter;
   login: () => void;
@@ -122,6 +165,12 @@ export interface AppContextType {
   addSalePayment: (saleId: string, payment: Omit<SalePayment, 'id' | 'sale_id'>) => void;
   addCustomerPayment: (payment: Omit<CustomerPayment, 'id'>) => void;
   getCustomerPurchaseHistory: (customerId: string) => Sale[];
+  addSupplier: (supplier: Omit<Supplier, 'id' | 'created_date'>) => void;
+  deleteSupplier: (id: string) => void;
+  addBill: (billData: Omit<Bill, 'id' | 'created_date'>) => void;
+  deleteBill: (id: string) => void;
+  payBillInstallment: (installmentId: string) => void;
+  getBillInstallmentsByStatus: (status?: BillInstallment['status']) => BillInstallment[];
   updateNotes: (content: string) => void;
   setPeriodFilter: (filter: PeriodFilter) => void;
   clearAllData: () => void;

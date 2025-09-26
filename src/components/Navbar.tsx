@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { LogOut, Home, DollarSign, ShoppingCart, Users, Package } from 'lucide-react';
+import { LogOut, Home, DollarSign, ShoppingCart, Users, Package, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface NavbarProps {
@@ -74,6 +74,17 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                 >
                   <Package className="h-4 w-4" />
                   <span>Produtos</span>
+                </Button>
+              </Link>
+
+              <Link to="/contas-pagar">
+                <Button 
+                  variant={isActive('/contas-pagar') ? 'default' : 'ghost'}
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Contas a Pagar</span>
                 </Button>
               </Link>
             </div>
