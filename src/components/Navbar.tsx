@@ -18,7 +18,7 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">Finanças & Vendas</span>
+              <span className="text-xl font-bold text-foreground">Fluxo de Caixa</span>
             </Link>
             
             <div className="hidden md:flex space-x-4">
@@ -30,17 +30,6 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                 >
                   <Home className="h-4 w-4" />
                   <span>Dashboard</span>
-                </Button>
-              </Link>
-              
-              <Link to="/financas">
-                <Button 
-                  variant={isActive('/financas') ? 'default' : 'ghost'}
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  <DollarSign className="h-4 w-4" />
-                  <span>Finanças</span>
                 </Button>
               </Link>
               

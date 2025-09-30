@@ -13,8 +13,12 @@ export const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulação de login - qualquer email/senha funciona
-    login();
+    // Validação de credenciais hardcoded
+    if (email === 'master' && password === 'fluxodecaixa123') {
+      login();
+    } else {
+      alert('Credenciais inválidas. Use: master / fluxodecaixa123');
+    }
   };
 
   return (
@@ -27,20 +31,20 @@ export const Login = () => {
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Finanças & Vendas</CardTitle>
+            <CardTitle className="text-2xl font-bold">Fluxo de Caixa</CardTitle>
             <CardDescription className="text-base">
-              Controle suas finanças pessoais e vendas em um só lugar
+              Sistema PDV - Ponto de Venda Completo
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">Usuário</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="seu@email.com"
+                type="text"
+                placeholder="Digite o usuário"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -70,7 +74,7 @@ export const Login = () => {
           
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Esta é uma demonstração. Use qualquer email e senha para entrar.
+              Usuário: <strong>master</strong> | Senha: <strong>fluxodecaixa123</strong>
             </p>
           </div>
         </CardContent>

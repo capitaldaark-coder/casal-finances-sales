@@ -93,9 +93,13 @@ export const ToolsWidget = () => {
     children: React.ReactNode;
   }) => (
     <Button
-      onClick={onClick}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
       variant="outline"
       className={`h-12 text-lg font-semibold ${className}`}
+      type="button"
     >
       {children}
     </Button>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { ProductModal } from '@/components/ProductModal';
 import { useAppContext } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Package, Edit, Search, AlertTriangle } from 'lucide-react';
+import { Trash2, Package, Edit, Search, AlertTriangle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
 
@@ -236,10 +235,15 @@ export const Produtos = () => {
           </CardContent>
         </Card>
 
-        <FloatingActionButton 
-          onClick={() => setIsModalOpen(true)}
-          icon={<Package className="h-6 w-6" />}
-        />
+        <div className="mb-6 mt-6">
+          <Button onClick={() => {
+            setEditingProduct(undefined);
+            setIsModalOpen(true);
+          }} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Novo Produto
+          </Button>
+        </div>
         
         <ProductModal
           isOpen={isModalOpen}

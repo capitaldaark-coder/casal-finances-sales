@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { CustomerModal } from '@/components/CustomerModal';
 import { useAppContext } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Users, UserPlus } from 'lucide-react';
+import { Trash2, Users, UserPlus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const Clientes = () => {
@@ -159,10 +158,12 @@ export const Clientes = () => {
           </CardContent>
         </Card>
 
-        <FloatingActionButton 
-          onClick={() => setIsModalOpen(true)}
-          icon={<UserPlus className="h-6 w-6" />}
-        />
+        <div className="mb-6 mt-6">
+          <Button onClick={() => setIsModalOpen(true)} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Novo Cliente
+          </Button>
+        </div>
         
         <CustomerModal
           isOpen={isModalOpen}

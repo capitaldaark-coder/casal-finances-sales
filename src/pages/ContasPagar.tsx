@@ -8,7 +8,6 @@ import { useAppContext } from '@/contexts/AppContext';
 import { SupplierModal } from '@/components/SupplierModal';
 import { BillModal } from '@/components/BillModal';
 import { BillInstallmentsTable } from '@/components/BillInstallmentsTable';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { Supplier } from '@/types';
 import { 
   Building, 
@@ -18,7 +17,8 @@ import {
   AlertCircle,
   Trash2,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Plus,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -326,10 +326,12 @@ export default function ContasPagar() {
         </div>
       </main>
 
-      <FloatingActionButton
-        onClick={() => setIsBillModalOpen(true)}
-        icon={<FileText className="h-6 w-6" />}
-      />
+      <div className="fixed bottom-6 right-6">
+        <Button onClick={() => setIsBillModalOpen(true)} size="lg">
+          <Plus className="h-5 w-5 mr-2" />
+          Nova Conta
+        </Button>
+      </div>
 
       <SupplierModal
         isOpen={isSupplierModalOpen}

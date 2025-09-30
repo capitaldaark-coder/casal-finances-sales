@@ -2,11 +2,11 @@ import { useState, useMemo } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { BarChart } from '@/components/BarChart';
 import { SalesTable } from '@/components/SalesTable';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { NewSaleModal } from '@/components/NewSaleModal';
 import { useAppContext } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingCart, TrendingUp, Package, DollarSign } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ShoppingCart, TrendingUp, Package, DollarSign, Plus } from 'lucide-react';
 
 export const Vendas = () => {
   const { sales, customers, logout, deleteSale } = useAppContext();
@@ -152,7 +152,12 @@ export const Vendas = () => {
           </Card>
         </div>
 
-        <FloatingActionButton onClick={() => setIsModalOpen(true)} />
+        <div className="mb-6">
+          <Button onClick={() => setIsModalOpen(true)} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Nova Venda
+          </Button>
+        </div>
         
         <NewSaleModal
           isOpen={isModalOpen}

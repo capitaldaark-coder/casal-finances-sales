@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useAppContext } from "@/contexts/AppContext";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
-import { Financas } from "./pages/Financas";
 import { Vendas } from "./pages/Vendas";
 import { Clientes } from "./pages/Clientes";
 import { Produtos } from "./pages/Produtos";
@@ -36,11 +35,6 @@ const AppRoutes = () => (
       <Route path="/" element={
         <PrivateRoute>
           <Dashboard />
-        </PrivateRoute>
-      } />
-      <Route path="/financas" element={
-        <PrivateRoute>
-          <Financas />
         </PrivateRoute>
       } />
       <Route path="/vendas" element={
