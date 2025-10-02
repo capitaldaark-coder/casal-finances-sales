@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { CustomerModal } from '@/components/CustomerModal';
 import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -10,7 +11,8 @@ import { Trash2, Users, UserPlus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const Clientes = () => {
-  const { customers, sales, logout, addCustomer, deleteCustomer } = useAppContext();
+  const { customers, sales, addCustomer, deleteCustomer } = useAppContext();
+  const { signOut } = useSupabase();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -63,7 +65,7 @@ export const Clientes = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onLogout={logout} />
+      <Navbar onLogout={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

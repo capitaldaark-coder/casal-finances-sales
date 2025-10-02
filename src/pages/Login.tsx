@@ -1,24 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign } from 'lucide-react';
-import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAppContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user } = useSupabase();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Validação de credenciais hardcoded
-    if (email === 'master' && password === 'fluxodecaixa123') {
-      login();
-    } else {
-      alert('Credenciais inválidas. Use: master / fluxodecaixa123');
+  // Redirecionar se já estiver autenticado
+  useEffect(() => {
+    if (user) {
+      navigate('/');
     }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    await signIn(email, password);
+    
+    setIsLoading(false);
   };
 
   return (
@@ -67,14 +76,15 @@ export const Login = () => {
               type="submit" 
               className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
               size="lg"
+              disabled={isLoading}
             >
-              Entrar
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Usuário: <strong>master</strong> | Senha: <strong>fluxodecaixa123</strong>
+              Use: <strong>master@fluxodecaixa.com</strong> / <strong>fluxodecaixa123</strong>
             </p>
           </div>
         </CardContent>

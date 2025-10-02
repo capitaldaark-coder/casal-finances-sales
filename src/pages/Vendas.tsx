@@ -4,12 +4,14 @@ import { BarChart } from '@/components/BarChart';
 import { SalesTable } from '@/components/SalesTable';
 import { NewSaleModal } from '@/components/NewSaleModal';
 import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, TrendingUp, Package, DollarSign, Plus } from 'lucide-react';
 
 export const Vendas = () => {
-  const { sales, customers, logout, deleteSale } = useAppContext();
+  const { sales, customers, deleteSale } = useAppContext();
+  const { signOut } = useSupabase();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const chartData = useMemo(() => {
@@ -49,7 +51,7 @@ export const Vendas = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onLogout={logout} />
+      <Navbar onLogout={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

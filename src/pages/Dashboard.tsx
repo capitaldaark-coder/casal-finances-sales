@@ -1,5 +1,5 @@
 import { Navbar } from '@/components/Navbar';
-import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, ShoppingCart, TrendingUp, Users, AlertTriangle } from 'lucide-react';
 import { BarChart } from '@/components/BarChart';
@@ -15,7 +15,7 @@ import {
 } from '@/data/mockDashboardData';
 
 export const Dashboard = () => {
-  const { logout } = useAppContext();
+  const { signOut } = useSupabase();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -26,7 +26,7 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onLogout={logout} />
+      <Navbar onLogout={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { ProductModal } from '@/components/ProductModal';
 import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
 
 export const Produtos = () => {
-  const { products, logout, addProduct, updateProduct, deleteProduct } = useAppContext();
+  const { products, addProduct, updateProduct, deleteProduct } = useAppContext();
+  const { signOut } = useSupabase();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,7 +84,7 @@ export const Produtos = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onLogout={logout} />
+      <Navbar onLogout={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

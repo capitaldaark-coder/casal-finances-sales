@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useAppContext } from '@/contexts/AppContext';
+import { useSupabase } from '@/contexts/SupabaseContext';
 import { SupplierModal } from '@/components/SupplierModal';
 import { BillModal } from '@/components/BillModal';
 import { BillInstallmentsTable } from '@/components/BillInstallmentsTable';
@@ -24,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function ContasPagar() {
   const { suppliers, bills, billInstallments, deleteSupplier, deleteBill } = useAppContext();
+  const { signOut } = useSupabase();
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   const [isBillModalOpen, setIsBillModalOpen] = useState(false);
   const { toast } = useToast();
@@ -101,7 +103,7 @@ export default function ContasPagar() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onLogout={() => {}} />
+      <Navbar onLogout={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
