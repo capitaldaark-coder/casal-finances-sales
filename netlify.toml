@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  VITE_SUPABASE_URL = "https://urhabonyocfhbqzjxtii.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaGFib255b2NmaGJxemp4dGlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNjY2NDcsImV4cCI6MjA3NDk0MjY0N30.H_KXsLNaiZTF4Dvkjk2lyjkD8G526QNUyxwPUN34Yxw"
+  VITE_SUPABASE_PROJECT_ID = "urhabonyocfhbqzjxtii"
