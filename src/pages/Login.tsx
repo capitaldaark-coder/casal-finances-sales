@@ -81,12 +81,6 @@ export const Login = () => {
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Use: <strong>master@fluxodecaixa.com</strong> / <strong>fluxodecaixa123</strong>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
