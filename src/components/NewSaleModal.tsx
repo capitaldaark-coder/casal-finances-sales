@@ -164,9 +164,6 @@ export const NewSaleModal = ({ isOpen, onClose }: NewSaleModalProps) => {
       handleRemoveItem(productId);
       return;
     }
-
-    const product = getProductByBarcode(''); // Precisamos encontrar o produto pelo ID
-    // Aqui seria ideal ter um método getProductById
     
     setSaleItems(prev => 
       prev.map(item => 
@@ -239,30 +236,37 @@ export const NewSaleModal = ({ isOpen, onClose }: NewSaleModalProps) => {
 
       // Atualizar estoque dos produtos
       for (const item of saleItems) {
-        const { error: stockError } = await supabase.rpc(
-          'atualizar_estoque',
-          { 
-            produto_id: item.product_id, 
-            quantidade: -item.quantity 
-          }
-        );
+        // Buscar estoque atual
+        const { data: currentProduct } = await supabase
+          .from('produtos')
+          .select('quantidade_estoque')
+          .eq('id', item.product_id)
+          .single();
 
-        if (stockError) {
-          console.error('Erro ao atualizar estoque:', stockError);
+        if (currentProduct) {
+          await supabase
+            .from('produtos')
+            .update({ 
+              quantidade_estoque: currentProduct.quantidade_estoque - item.quantity 
+            })
+            .eq('id', item.product_id);
         }
       }
 
       // Atualizar saldo devedor do cliente
-      const { error: debtError } = await supabase.rpc(
-        'atualizar_saldo_devedor',
-        {
-          cliente_id: selectedCustomer,
-          valor: totalValue
-        }
-      );
+      const { data: currentCustomer } = await supabase
+        .from('clientes')
+        .select('saldo_devedor')
+        .eq('id', selectedCustomer)
+        .single();
 
-      if (debtError) {
-        console.error('Erro ao atualizar saldo devedor:', debtError);
+      if (currentCustomer) {
+        await supabase
+          .from('clientes')
+          .update({ 
+            saldo_devedor: currentCustomer.saldo_devedor + totalValue 
+          })
+          .eq('id', selectedCustomer);
       }
 
       // Reset form
