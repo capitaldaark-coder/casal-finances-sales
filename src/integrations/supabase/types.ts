@@ -291,25 +291,37 @@ export type Database = {
         Row: {
           cliente_id: string | null
           data_venda: string | null
+          forma_pagamento: string | null
           id: string
           lucro_total: number | null
+          numero_parcelas: number | null
           status: string | null
+          troco: number | null
+          valor_recebido: number | null
           valor_total: number
         }
         Insert: {
           cliente_id?: string | null
           data_venda?: string | null
+          forma_pagamento?: string | null
           id?: string
           lucro_total?: number | null
+          numero_parcelas?: number | null
           status?: string | null
+          troco?: number | null
+          valor_recebido?: number | null
           valor_total: number
         }
         Update: {
           cliente_id?: string | null
           data_venda?: string | null
+          forma_pagamento?: string | null
           id?: string
           lucro_total?: number | null
+          numero_parcelas?: number | null
           status?: string | null
+          troco?: number | null
+          valor_recebido?: number | null
           valor_total?: number
         }
         Relationships: [

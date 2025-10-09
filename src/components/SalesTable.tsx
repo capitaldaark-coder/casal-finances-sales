@@ -1,20 +1,32 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Sale, Customer } from '@/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Trash2 } from 'lucide-react';
-import { useAppContext } from '@/contexts/AppContext';
+
+interface Sale {
+  id: string;
+  cliente_id: string;
+  valor_total: number;
+  lucro_total: number;
+  data_venda: string;
+  forma_pagamento: string;
+  numero_parcelas: number;
+}
+
+interface Customer {
+  id: string;
+  nome: string;
+}
 
 interface SalesTableProps {
   sales: Sale[];
+  customers?: Customer[];
   onDelete?: (id: string) => void;
 }
 
-export const SalesTable = ({ sales, onDelete }: SalesTableProps) => {
-  const { customers } = useAppContext();
-  
+export const SalesTable = ({ sales, customers = [], onDelete }: SalesTableProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -23,36 +35,22 @@ export const SalesTable = ({ sales, onDelete }: SalesTableProps) => {
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
+    return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: ptBR });
   };
 
   const getCustomerName = (customerId: string) => {
     const customer = customers.find(c => c.id === customerId);
-    return customer?.name || 'Cliente não encontrado';
+    return customer?.nome || 'Cliente não encontrado';
   };
 
-  const getStatusColor = (status: Sale['status']) => {
-    switch (status) {
-      case 'quitado':
-        return 'default';
-      case 'parcial':
-        return 'secondary';
-      case 'pendente':
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  };
-
-  const getItemsSummary = (sale: Sale) => {
-    const totalItems = sale.items.reduce((sum, item) => sum + item.quantity, 0);
-    const itemNames = sale.items.slice(0, 2).map(item => item.product_name).join(', ');
-    
-    if (sale.items.length > 2) {
-      return `${itemNames} e mais ${sale.items.length - 2} itens (${totalItems} total)`;
-    }
-    
-    return `${itemNames} (${totalItems} ${totalItems === 1 ? 'item' : 'itens'})`;
+  const getPaymentLabel = (method: string, installments: number) => {
+    const labels: Record<string, string> = {
+      dinheiro: 'Dinheiro',
+      debito: 'Débito',
+      credito: installments > 1 ? `Crédito ${installments}x` : 'Crédito',
+      pix: 'PIX'
+    };
+    return labels[method] || method;
   };
 
   return (
@@ -60,44 +58,49 @@ export const SalesTable = ({ sales, onDelete }: SalesTableProps) => {
       <TableHeader>
         <TableRow>
           <TableHead>Cliente</TableHead>
-          <TableHead>Itens</TableHead>
+          <TableHead>Pagamento</TableHead>
           <TableHead>Total</TableHead>
           <TableHead>Lucro</TableHead>
-          <TableHead>Status</TableHead>
           <TableHead>Data</TableHead>
           {onDelete && <TableHead>Ações</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {sales.map((sale) => (
-          <TableRow key={sale.id}>
-            <TableCell className="font-medium">{getCustomerName(sale.customer_id)}</TableCell>
-            <TableCell className="max-w-xs truncate">{getItemsSummary(sale)}</TableCell>
-            <TableCell className="font-medium">{formatCurrency(sale.total_value)}</TableCell>
-            <TableCell className="text-success font-medium">{formatCurrency(sale.profit)}</TableCell>
-            <TableCell>
-              <Badge variant={getStatusColor(sale.status)}>
-                {sale.status === 'quitado' ? 'Quitado' : 
-                 sale.status === 'parcial' ? 'Parcial' : 'Pendente'}
-              </Badge>
+        {sales.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={onDelete ? 6 : 5} className="text-center text-muted-foreground">
+              Nenhuma venda registrada
             </TableCell>
-            <TableCell className="text-muted-foreground">
-              {formatDate(sale.sale_date)}
-            </TableCell>
-            {onDelete && (
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(sale.id)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            )}
           </TableRow>
-        ))}
+        ) : (
+          sales.map((sale) => (
+            <TableRow key={sale.id}>
+              <TableCell className="font-medium">{getCustomerName(sale.cliente_id)}</TableCell>
+              <TableCell>
+                <Badge variant="outline">
+                  {getPaymentLabel(sale.forma_pagamento, sale.numero_parcelas)}
+                </Badge>
+              </TableCell>
+              <TableCell className="font-medium">{formatCurrency(sale.valor_total)}</TableCell>
+              <TableCell className="text-success font-medium">{formatCurrency(sale.lucro_total)}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {formatDate(sale.data_venda)}
+              </TableCell>
+              {onDelete && (
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(sale.id)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              )}
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );

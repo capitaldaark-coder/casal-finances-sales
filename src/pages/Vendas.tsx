@@ -1,24 +1,91 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { BarChart } from '@/components/BarChart';
 import { SalesTable } from '@/components/SalesTable';
 import { NewSaleModal } from '@/components/NewSaleModal';
-import { useAppContext } from '@/contexts/AppContext';
 import { useSupabase } from '@/contexts/SupabaseContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, TrendingUp, Package, DollarSign, Plus } from 'lucide-react';
+import { ShoppingCart, TrendingUp, Package, DollarSign, Plus, AlertCircle, Users, Box } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+interface Sale {
+  id: string;
+  cliente_id: string;
+  valor_total: number;
+  lucro_total: number;
+  data_venda: string;
+  forma_pagamento: string;
+  numero_parcelas: number;
+}
+
+interface Customer {
+  id: string;
+  nome: string;
+}
 
 export const Vendas = () => {
-  const { sales, customers, deleteSale } = useAppContext();
   const { signOut } = useSupabase();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customersCount, setCustomersCount] = useState(0);
+  const [productsCount, setProductsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Buscar dados do Supabase
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Recarregar dados quando o modal fechar
+  useEffect(() => {
+    if (!isModalOpen) {
+      fetchData();
+    }
+  }, [isModalOpen]);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [salesResult, customersResult, productsResult] = await Promise.all([
+        supabase.from('vendas').select('*').order('data_venda', { ascending: false }),
+        supabase.from('clientes').select('id, nome'),
+        supabase.from('produtos').select('id', { count: 'exact', head: true })
+      ]);
+
+      if (salesResult.data) setSales(salesResult.data);
+      if (customersResult.data) {
+        setCustomers(customersResult.data);
+        setCustomersCount(customersResult.data.length);
+      }
+      if (productsResult.count !== null) setProductsCount(productsResult.count);
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteSale = async (id: string) => {
+    try {
+      const { error } = await supabase.from('vendas').delete().eq('id', id);
+      if (!error) {
+        setSales(prev => prev.filter(s => s.id !== id));
+      }
+    } catch (error) {
+      console.error('Erro ao deletar venda:', error);
+    }
+  };
 
   const chartData = useMemo(() => {
     const customerTotals = sales.reduce((acc, sale) => {
-      const customer = customers.find(c => c.id === sale.customer_id);
-      const customerName = customer?.name || 'Cliente não encontrado';
-      acc[customerName] = (acc[customerName] || 0) + sale.profit;
+      const customer = customers.find(c => c.id === sale.cliente_id);
+      const customerName = customer?.nome || 'Cliente não encontrado';
+      acc[customerName] = (acc[customerName] || 0) + sale.lucro_total;
       return acc;
     }, {} as Record<string, number>);
 
@@ -29,15 +96,13 @@ export const Vendas = () => {
   }, [sales, customers]);
 
   const summary = useMemo(() => {
-    const totalVendas = sales.reduce((sum, s) => sum + s.total_value, 0);
-    const totalLucro = sales.reduce((sum, s) => sum + s.profit, 0);
-    const totalItens = sales.reduce((sum, s) => sum + s.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+    const totalVendas = sales.reduce((sum, s) => sum + s.valor_total, 0);
+    const totalLucro = sales.reduce((sum, s) => sum + s.lucro_total, 0);
     const totalTransacoes = sales.length;
 
     return {
       vendas: totalVendas,
       lucro: totalLucro,
-      itens: totalItens,
       transacoes: totalTransacoes,
     };
   }, [sales]);
@@ -63,8 +128,42 @@ export const Vendas = () => {
           </p>
         </div>
 
+        {/* Alertas de Sistema Vazio */}
+        {(customersCount === 0 || productsCount === 0) && (
+          <Alert className="mb-6 border-warning bg-warning/10">
+            <AlertCircle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-warning">
+              <p className="font-semibold mb-2">Atenção! Sistema precisa de dados para funcionar:</p>
+              <div className="flex flex-wrap gap-3">
+                {customersCount === 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/clientes')}
+                    className="border-warning text-warning hover:bg-warning/20"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Cadastrar Clientes
+                  </Button>
+                )}
+                {productsCount === 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/produtos')}
+                    className="border-warning text-warning hover:bg-warning/20"
+                  >
+                    <Box className="h-4 w-4 mr-2" />
+                    Cadastrar Produtos
+                  </Button>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="shadow-card bg-gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Vendas</CardTitle>
@@ -73,18 +172,6 @@ export const Vendas = () => {
             <CardContent>
               <div className="text-2xl font-bold text-primary">
                 {formatCurrency(summary.vendas)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card bg-gradient-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Itens Vendidos</CardTitle>
-              <Package className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-accent">
-                {summary.itens}
               </div>
             </CardContent>
           </Card>
@@ -104,10 +191,10 @@ export const Vendas = () => {
           <Card className="shadow-card bg-gradient-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Transações</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-muted-foreground">
+              <div className="text-2xl font-bold text-accent">
                 {summary.transacoes}
               </div>
             </CardContent>
@@ -143,22 +230,30 @@ export const Vendas = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {sales.length > 0 ? (
-                <SalesTable sales={sales.slice(0, 8)} onDelete={deleteSale} />
-              ) : (
-                <div className="flex items-center justify-center h-64 text-muted-foreground">
-                  Nenhuma venda registrada ainda
-                </div>
-              )}
+              <SalesTable 
+                sales={sales.slice(0, 8)} 
+                customers={customers}
+                onDelete={deleteSale} 
+              />
             </CardContent>
           </Card>
         </div>
 
-        <div className="mb-6">
-          <Button onClick={() => setIsModalOpen(true)} size="lg">
+        <div className="mb-6 flex justify-between items-center">
+          <Button 
+            onClick={() => setIsModalOpen(true)} 
+            size="lg"
+            disabled={customersCount === 0 || productsCount === 0}
+            className="bg-gradient-primary"
+          >
             <Plus className="h-5 w-5 mr-2" />
             Nova Venda
           </Button>
+          {(customersCount === 0 || productsCount === 0) && (
+            <p className="text-sm text-muted-foreground">
+              Cadastre clientes e produtos antes de registrar vendas
+            </p>
+          )}
         </div>
         
         <NewSaleModal
